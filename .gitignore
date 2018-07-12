@@ -1,0 +1,6 @@
+# Optional REPL history
+.DS_Store
+._*
+*副本*
+.tmp
+.idea
