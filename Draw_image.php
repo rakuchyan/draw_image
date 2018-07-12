@@ -3,51 +3,31 @@
 
 class Draw_image
 {
-    const COLOR = [
-        'black' => [
-            'r' => 0,
-            'g' => 0,
-            'b' => 0,
-        ],
-        'purple' => [
-            'r' => 182,
-            'g' => 184,
-            'b' => 253,
-        ],
-        'blue' => [
-            'r' => 0,
-            'g' => 0,
-            'b' => 255,
-        ],
-        'white' => [
-            'r' => 255,
-            'g' => 255,
-            'b' => 255,
-        ],
-        'yellow' => [
-            'r' => 255,
-            'g' => 255,
-            'b' => 0,
-        ],
+    const COLORS = [
+        'bold' => [0x8B, 0x83, 0x86],
+        'purple' => [0xB6, 0xB8, 0xFD],
+        'blue' => [0x87, 0xCE, 0xFF],
+        'yellow' => [0xEE, 0xEE, 0x00],
+        'red' => [0xFF, 0x30, 0x30],
+        'green' => [0x40, 0xE0, 0xD0],
     ];
 
     public static function fill_pic_logo($filename, $new_width, $new_height)
     {
 
         // $filename = $_GET('filename');
-        // $new_width = $_GET('width');
-        // $new_height = $_GET('height');
+        // $new_width = $_GET('w');
+        // $new_height = $_GET('h');
 
-        $mime = '';
         $img = getimagesize($filename);
-        if (!empty($img[2])) {
-            $mime = image_type_to_mime_type($img[2]);
-        }
-
-        if ($mime == 'image/png') {
+        if (!isset($img[2])) {
+            return true;
+        }elseif ($img[2] == IMAGETYPE_PNG) {
             $current_image = imagecreatefrompng($filename);
-        } elseif ($mime == 'image/jpeg') {
+        } elseif ($img[2] == IMAGETYPE_JPEG) {
             $current_image = imagecreatefromjpeg($filename);
+        } elseif ($img[2] == IMAGETYPE_GIF) {
+            $current_image = imagecreatefromgif($filename);
         } else {
             return true;
         }
@@ -57,16 +37,13 @@ class Draw_image
         $g = ($rgb >> 8) & 0xFF;
         $b = $rgb & 0xFF;
 
-        list($current_width, $current_height) = getimagesize($filename);
-        $left = 0;
-        $top = 0;
         $padding_left = ($new_width - $current_width) / 2;
         $padding_top = ($new_height - $current_height) / 2;
 
 
         $im = imagecreate($new_width, $new_height);
         imagecolorallocate($im, $r, $g, $b);
-        imagecopy($im, $current_image, $padding_left, $padding_top, $left, $top, $current_width, $current_height);
+        imagecopy($im, $current_image, $padding_left, $padding_top, 0, 0, $img[0], $img[1]);
 
         header('Content-type: image/png');
         // ob_start();
@@ -109,8 +86,8 @@ class Draw_image
         $y = abs(($height - $the_box['min_y']) / 2);
 
         $img = imagecreate($width, $height);
-        imagecolorallocate($img, self::COLOR[trim($color)]['r'], self::COLOR[trim($color)]['g'], self::COLOR[trim($color)]['b']);
-        $text_color = imagecolorallocate($img, self::COLOR['white']['r'], self::COLOR['white']['g'], self::COLOR['white']['b']);
+        imagecolorallocate($img, ...self::COLORS[trim($color)]);
+        $text_color = imagecolorallocate($img, 255, 255, 255);
 
         imagettftext(
             $img,
